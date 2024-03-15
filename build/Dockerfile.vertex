@@ -1,0 +1,41 @@
+# FROM gcr.io/tfx-oss-public/tfx:1.14.0
+
+# COPY requirements.txt requirements.txt
+# COPY requirements-tfx-1.14.0.txt requirements-tfx-1.14.0.txt
+
+# RUN pip install -r requirements.txt
+
+# # RuntimeError: module compiled against api version 0xe but this version of numpy is 0xd
+# # Fixed by below command - see https://stackoverflow.com/questions/33859531/runtimeerror-module-compiled-against-api-version-a-but-this-version-of-numpy-is
+
+# RUN pip install -U numpy tensorflow_decision_forests==1.5.0 --ignore-installed
+# RUN pip install --no-deps -r requirements-tfx-1.14.0.txt
+
+# COPY src/ src/
+
+# COPY src/tests/test.import_tfdf.sh /test.import_tfdf.sh
+# RUN chmod +x /test.import_tfdf.sh
+# RUN /test.import_tfdf.sh
+
+# ENV PYTHONPATH="/pipeline:${PYTHONPATH}"
+
+FROM python:3.8-slim as base
+
+COPY requirements.txt /requirements.txt
+
+RUN pip install --upgrade pip
+
+RUN apt-get update && apt-get install -y gcc g++ git-all && rm -rf /var/lib/apt/lists/*
+
+RUN pip install -r /requirements.txt --no-cache-dir
+RUN pip install google-cloud-aiplatform "shapely<2"
+
+FROM base as test
+
+COPY src/ src/
+
+COPY src/tests/test.import_tfdf.sh /test.import_tfdf.sh
+RUN chmod +x /test.import_tfdf.sh
+RUN /test.import_tfdf.sh
+
+ENV PYTHONPATH="/pipeline:${PYTHONPATH}"

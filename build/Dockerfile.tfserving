@@ -1,0 +1,13 @@
+# Thanks: https://github.com/chuck1z/deploy-model/blob/TF-Serving/Dockerfile
+FROM tensorflow/serving:2.13.0
+
+# Copy model into image container
+COPY ./serving_saved_model/urge-classifier /models/urge-classifier
+COPY ./monitoring/prometheus.config /models/prometheus.config
+
+# Setting environment variables
+ENV MODEL_NAME urge-classifier
+ENV MODEL_BASE_PATH /models
+
+# In this case: using rest api not grpc 
+EXPOSE 8501

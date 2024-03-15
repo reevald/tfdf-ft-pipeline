@@ -74,8 +74,9 @@ steps:
   - 'TFX_IMAGE_URI=$_TFX_IMAGE_URI'
   
   id: 'Compile Pipeline'
-  WaitFor: ['Clone Repository']
-  # waitFor: ['Local Test E2E Pipeline', 'Unit Test Datasource Utils', 'Unit Test Model']
+  waitFor: ['Clone Repository']
+
+# waitFor: ['Local Test E2E Pipeline', 'Unit Test Datasource Utils', 'Unit Test Model']
 
 # Upload compiled pipeline to GCS.
 - name: 'gcr.io/cloud-builders/gsutil'

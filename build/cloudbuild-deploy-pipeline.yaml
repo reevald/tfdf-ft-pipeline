@@ -98,4 +98,7 @@ substitutions:
   _CI_CD_IMAGE_URI: 'us-central1-docker.pkg.dev/tfds-mlops/docker-repo/vertex:latest'
   _TFX_IMAGE_URI: 'us-central1-docker.pkg.dev/tfds-mlops/docker-repo/vertex:latest'
   
-
+availableSecrets:
+  secretManager:
+  - versionName: projects/tfdf-mlops/secrets/SSH_KEY/versions/latest
+    env: 'SSH_KEY'

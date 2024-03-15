@@ -6,6 +6,9 @@ from typing import Any, Dict, List, Tuple
 
 import keras_tuner as kt
 import tensorflow as tf
+
+# See: https://github.com/tensorflow/decision-forests/issues/14#issuecomment-851303678
+import tensorflow_decision_forests as tfdf  # noqa: F401
 import tensorflow_transform as tft
 import tfx.v1 as tfx
 
@@ -20,7 +23,7 @@ from src.modules.utils import (
 
 
 def get_serve_tf_examples_fn(
-    model: tf.keras.Model, tf_transform_output: tft.TFTransformOutput, label_key:str
+    model: tf.keras.Model, tf_transform_output: tft.TFTransformOutput, label_key: str
 ) -> Dict[str, Any]:
     """Returns the output to be used in the serving signature.
 
@@ -116,14 +119,14 @@ def get_serve_tf_examples_fn(
     }
 
 
-def get_split_dataset( #pylint: disable=too-many-arguments
+def get_split_dataset(  # pylint: disable=too-many-arguments
     train_files: List[str],
     eval_files: List[str],
     data_accessor: tfx.components.DataAccessor,
     tf_transform_output: tft.TFTransformOutput,
     batch_size: int,
     label_key: str,
-    input_fn_version: str
+    input_fn_version: str,
 ) -> Tuple[tf.data.Dataset, tf.data.Dataset]:
     """Get train and val dataset from the given train and eval files.
 
@@ -143,13 +146,13 @@ def get_split_dataset( #pylint: disable=too-many-arguments
     if input_fn_version == "V1":
         train_dataset = input_fn_v1(
             file_pattern=train_files,
-            tf_transform_output=tf_transform_output, # pylint: disable=duplicate-code
+            tf_transform_output=tf_transform_output,  # pylint: disable=duplicate-code
             batch_size=batch_size,
             label_key=label_key,
         )
         val_dataset = input_fn_v1(
             file_pattern=eval_files,
-            tf_transform_output=tf_transform_output, # pylint: disable=duplicate-code
+            tf_transform_output=tf_transform_output,  # pylint: disable=duplicate-code
             batch_size=batch_size,
             label_key=label_key,
         )
@@ -158,14 +161,14 @@ def get_split_dataset( #pylint: disable=too-many-arguments
         train_dataset = input_fn_v2(
             file_pattern=train_files,
             data_accessor=data_accessor,
-            tf_transform_output=tf_transform_output, # pylint: disable=duplicate-code
+            tf_transform_output=tf_transform_output,  # pylint: disable=duplicate-code
             batch_size=batch_size,
             label_key=label_key,
         )
         val_dataset = input_fn_v2(
             file_pattern=eval_files,
             data_accessor=data_accessor,
-            tf_transform_output=tf_transform_output, # pylint: disable=duplicate-code
+            tf_transform_output=tf_transform_output,  # pylint: disable=duplicate-code
             batch_size=batch_size,
             label_key=label_key,
         )
@@ -173,13 +176,13 @@ def get_split_dataset( #pylint: disable=too-many-arguments
     if input_fn_version == "V3":
         train_dataset = input_fn_v3(
             file_pattern=train_files,
-            tf_transform_output=tf_transform_output, # pylint: disable=duplicate-code
+            tf_transform_output=tf_transform_output,  # pylint: disable=duplicate-code
             batch_size=batch_size,
             label_key=label_key,
         )
         val_dataset = input_fn_v3(
             file_pattern=eval_files,
-            tf_transform_output=tf_transform_output, # pylint: disable=duplicate-code
+            tf_transform_output=tf_transform_output,  # pylint: disable=duplicate-code
             batch_size=batch_size,
             label_key=label_key,
         )
@@ -205,9 +208,9 @@ def run_fn(fn_args: tfx.components.FnArgs) -> None:
         eval_files=fn_args.eval_files,
         data_accessor=fn_args.data_accessor,
         tf_transform_output=tf_transform_output,
-        batch_size=batch_size, # type: ignore
-        label_key=label_key, # type: ignore
-        input_fn_version=input_fn_version # type: ignore
+        batch_size=batch_size,  # type: ignore
+        label_key=label_key,  # type: ignore
+        input_fn_version=input_fn_version,  # type: ignore
     )
 
     hparams = kt.HyperParameters.from_config(fn_args.hyperparameters)
@@ -222,6 +225,25 @@ def run_fn(fn_args: tfx.components.FnArgs) -> None:
         model_builder = cm_builder
 
     model = model_builder(hparams=hparams)
+    # TODO: need experiment to try re-train tfdf model
+    # https://www.tensorflow.org/decision_forests/tutorials/beginner_colab#re-train_the_model_with_a_different_learning_algorithm
+    # if fn_args.base_model:
+    #     try:
+    #         model = tf.keras.models.load_model(
+    #             filepath=fn_args.base_model,
+    #             custom_objects={
+    #                 "F1ScoreBinaryBridge": F1ScoreBinaryBridge(
+    #                     # Based on baseline model performance
+    #                     average="macro",
+    #                     threshold=0.48,
+    #                 )
+    #             },
+    #         )
+    #         model = _model_compiler(model, hparams.get("threshold"))
+    #     except Exception as err:
+    #         raise Exception(
+    #             f"Error load warmstart model: {fn_args.base_model}, {err}"
+    #         ) from err
     model.fit(train_dataset, validation_data=val_dataset, verbose=1)
 
     # Export the tensorboard logs
@@ -234,6 +256,6 @@ def run_fn(fn_args: tfx.components.FnArgs) -> None:
         signatures=get_serve_tf_examples_fn(
             model=model,
             tf_transform_output=tf_transform_output,
-            label_key=label_key # type: ignore
+            label_key=label_key,  # type: ignore
         ),
     )

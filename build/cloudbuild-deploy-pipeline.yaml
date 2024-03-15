@@ -1,0 +1,100 @@
+# References:
+# https://github.com/GoogleCloudPlatform/professional-services/blob/main/examples/vertex_mlops_enterprise/build/model-deployment-tfx.yaml.TEMPLATE
+
+steps:
+
+# Access the id_github file from Secret Manager, and setup SSH
+# See: https://cloud.google.com/build/docs/access-github-from-build#create_a_ssh_key
+- name: 'gcr.io/cloud-builders/git'
+  secretEnv: ['SSH_KEY']
+  entrypoint: 'bash'
+  args:
+  - -c
+  - |
+    echo "$$SSH_KEY" >> /root/.ssh/id_rsa
+    chmod 400 /root/.ssh/id_rsa
+    ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+  id: 'Prepare git keys'
+
+# Clone the repository.
+- name: 'gcr.io/cloud-builders/git'
+  args: ['clone', '--single-branch', '--branch',
+         '$_BRANCH', '$_REPO_URL',
+         '--depth', '1',
+         '--verbose']
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+  id: 'Clone Repository'
+  waitFor: ['Prepare git keys']
+
+# Run model unit tests.
+# - name: '$_CI_CD_IMAGE_URI'
+#   entrypoint: 'pytest'
+#   args: ['src/tests/model_tests.py', '-s']
+#   dir: '$_WORKDIR'
+#   id: 'Unit Test Model'
+#   waitFor: ['Clone Repository']
+#   timeout: 1800s
+
+# Test e2e pipeline using local runner.
+# - name: '$_CI_CD_IMAGE_URI'
+#   entrypoint: 'pytest'
+#   args: ['src/tests/pipeline_deployment_tests.py::test_e2e_pipeline', '-s']
+#   dir: '$_WORKDIR'
+#   env: 
+#   - 'PROJECT=$_PROJECT'  
+#   - 'REGION=$_REGION'
+#   - 'MODEL_DISPLAY_NAME=$_MODEL_DISPLAY_NAME'
+#   - 'VERTEX_DATASET_NAME=$_VERTEX_DATASET_NAME'  
+#   - 'GCS_LOCATION=$_TEST_GCS_LOCATION'
+#   - 'TRAIN_LIMIT=$_CI_TRAIN_LIMIT'
+#   - 'TEST_LIMIT=$_CI_TEST_LIMIT'  
+#   - 'UPLOAD_MODEL=$_CI_UPLOAD_MODEL'
+#   - 'ACCURACY_THRESHOLD=$_CI_ACCURACY_THRESHOLD'
+#   id: 'Local Test E2E Pipeline'
+#   waitFor: ['Clone Repository']
+#   timeout: 1800s
+
+# Compile the pipeline.
+- name: '$_CI_CD_IMAGE_URI'
+  entrypoint: 'python'
+  args: ['build/utils.py',
+          '--mode', 'compile-pipeline',
+          '--pipeline-name', '$_PIPELINE_NAME'
+          ]
+  dir: '$_WORKDIR'
+  env: 
+  - 'GOOGLE_CLOUD_PROJECT=$_GOOGLE_CLOUD_PROJECT'  
+  - 'GOOGLE_CLOUD_REGION=$_GOOGLE_CLOUD_REGION'
+  - 'MODEL_DISPLAY_NAME=$_MODEL_DISPLAY_NAME'
+  - 'TFX_IMAGE_URI=$_TFX_IMAGE_URI'
+  
+  id: 'Compile Pipeline'
+  WaitFor: ['Clone Repository']
+  # waitFor: ['Local Test E2E Pipeline', 'Unit Test Datasource Utils', 'Unit Test Model']
+
+# Upload compiled pipeline to GCS.
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['cp', '$_PIPELINE_NAME.json', '$_PIPELINES_STORE']
+  dir: '$_WORKDIR'
+  id:  'Upload Pipeline to GCS'
+  waitFor: ['Compile Pipeline']
+
+substitutions:
+  _REPO_URL: git@github.com:reevald/tfdf-ft-pipeline.git
+  _BRANCH: main
+  _WORKDIR: tfdf-ft-pipeline
+  _GOOGLE_CLOUD_PROJECT: tfdf-mlops
+  _GOOGLE_CLOUD_REGION: us-central1
+  _PIPELINE_NAME: urge-classifier-train-pipeline
+  _PIPELINE_STORE: gs://data-for-tfdf/pipelines-store/urge-classifier-train-pipeline
+  _MODEL_DISPLAY_NAME: urge-classifier
+  # For testing only we set ci-cd image = vertex image
+  _CI_CD_IMAGE_URI: 'us-central1-docker.pkg.dev/tfds-mlops/docker-repo/vertex:latest'
+  _TFX_IMAGE_URI: 'us-central1-docker.pkg.dev/tfds-mlops/docker-repo/vertex:latest'
+  
+

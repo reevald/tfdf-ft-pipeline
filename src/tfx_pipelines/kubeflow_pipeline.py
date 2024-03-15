@@ -199,7 +199,7 @@ def create_pipeline(
             tfma.MetricsSpec(
                 metrics=[
                     tfma.MetricConfig(
-                        module="modules.utils",
+                        module="src.modules.utils",
                         class_name="F1ScoreBinaryBridge",
                         config="""
                             "average": "micro",

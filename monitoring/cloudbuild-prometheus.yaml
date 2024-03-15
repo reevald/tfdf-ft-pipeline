@@ -1,0 +1,19 @@
+steps:
+  - id: "build image"
+    name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${PROJECT_ID}/${_DOCKER_REPO_NAME}/prometheus:latest",
+        "-f",
+        "./Dockerfile.prometheus",
+        ".",
+      ]
+
+  - id: "push image"
+    name: "gcr.io/cloud-builders/docker"
+    args: ["push", "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${PROJECT_ID}/${_DOCKER_REPO_NAME}/prometheus:latest"]
+
+images:
+  - "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${PROJECT_ID}/${_DOCKER_REPO_NAME}/prometheus"

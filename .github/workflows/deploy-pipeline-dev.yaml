@@ -1,4 +1,4 @@
-name: Deploy Vertex AI ${framework} Pipeline
+name: Deploy Vertex AI TFX Pipeline
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "staging" branch
@@ -24,4 +24,4 @@ jobs:
         credentials_json: "${{ secrets.GCP_CREDENTIALS_JSON }}"
 
     - name: 'Deploy Vertex AI Pipeline'
-      run: gcloud builds submit --no-source --config build/deploy-pipeline-dev.yaml --project tfdf-mlops --region us-central1
+      run: gcloud builds submit --no-source --config build/cloudbuild-deploy-pipeline.yaml --project tfdf-mlops --region us-central1

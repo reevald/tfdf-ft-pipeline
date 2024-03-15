@@ -92,7 +92,7 @@ substitutions:
   _GOOGLE_CLOUD_PROJECT: tfdf-mlops
   _GOOGLE_CLOUD_REGION: us-central1
   _PIPELINE_NAME: urge-classifier-train-pipeline
-  _PIPELINE_STORE: gs://data-for-tfdf/pipelines-store/urge-classifier-train-pipeline
+  _PIPELINES_STORE: gs://data-for-tfdf/pipelines-store/urge-classifier-train-pipeline
   _MODEL_DISPLAY_NAME: urge-classifier
   # For testing only we set ci-cd image = vertex image
   _CI_CD_IMAGE_URI: 'us-central1-docker.pkg.dev/tfds-mlops/docker-repo/vertex:latest'

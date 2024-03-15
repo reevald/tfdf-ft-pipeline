@@ -33,6 +33,9 @@ This project demonstrates how to build a machine learning pipeline for train and
     Once done, you will get new model inside serving_saved_model.
 
 ### Cloud Environment (with Continuous Training)
+<p align="center">
+  <img src="assets/demo-run-pipeline.gif" alt="Demo Run Pipeline" />
+</p>
 
 1. Setup Bucket in Google Cloud Storage and upload data into GCS, this process should be handled by ETL process, but for now, we can use src/data_to_gcs.ipynb to
 upload `sample_local_data` manually.

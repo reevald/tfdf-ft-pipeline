@@ -6,7 +6,7 @@ from argparse import Namespace
 from typing import Any, Optional
 
 from google.cloud import aiplatform as vertex_ai
-from google.cloud import storage
+from google.cloud import storage  # type: ignore[attr-defined]
 
 SCRIPT_DIR = os.path.dirname(
     os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__)))
@@ -58,11 +58,11 @@ def run_pipeline(
     if not blob.exists(storage_client):
         raise ValueError(f"{pipelines_store}/{pipeline_name} does not exist.")
 
+    vertex_ai.init(project=gcp_project_id, location=gcp_region)
+
     job = vertex_ai.PipelineJob(
         display_name=pipeline_name,
-        template_path=gcs_compiled_pipeline_file_location,
-        project=gcp_project_id,
-        location=gcp_region,
+        template_path=gcs_compiled_pipeline_file_location
     )
 
     job.submit()

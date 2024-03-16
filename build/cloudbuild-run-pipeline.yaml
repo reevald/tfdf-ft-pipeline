@@ -32,9 +32,14 @@ steps:
   waitFor: ['Prepare git keys']
 
 # Run the pipeline.
-# Note: prefer to use lightweight image by creating from scratch (non-gpu is lighter)
-# Since the pipeline run on Vertex AI not in this image (only for submit job)
-- name: '$_TFX_IMAGE_URI'
+- name: python:3.8
+  entrypoint: pip
+  args: ["install", "-r", "requirements.txt", "--user"]
+  dir: '$_WORKDIR'  
+  id: 'Install python packages'
+  waitFor: ['Clone Repository']
+
+- name: python:3.8
   entrypoint: 'python'
   args: ['build/utils.py',
           '--mode', 'run-pipeline',
@@ -44,9 +49,25 @@ steps:
           '--google-cloud-region', '$_GOOGLE_CLOUD_REGION',
           '--service-account', '$_SERVICE_ACCOUNT'
           ]
-  dir: '$_WORKDIR'
+  dir: '$_WORKDIR'  
   id: 'Run Pipeline'
-  waitFor: ['Clone Repository']
+  waitFor: ['Install python packages']
+
+# Note: prefer to use lightweight image by creating from scratch (non-gpu is lighter)
+# Since the pipeline run on Vertex AI not in this image (only for submit job)
+# - name: '$_TFX_IMAGE_URI'
+#   entrypoint: 'python'
+#   args: ['build/utils.py',
+#           '--mode', 'run-pipeline',
+#           '--pipeline-name', '$_PIPELINE_NAME',
+#           '--pipelines-store', '$_PIPELINES_STORE',
+#           '--google-cloud-project', '$_GOOGLE_CLOUD_PROJECT',
+#           '--google-cloud-region', '$_GOOGLE_CLOUD_REGION',
+#           '--service-account', '$_SERVICE_ACCOUNT'
+#           ]
+#   dir: '$_WORKDIR'
+#   id: 'Run Pipeline'
+#   waitFor: ['Clone Repository']
 
 substitutions:
   _REPO_URL: git@github.com:reevald/tfdf-ft-pipeline.git
@@ -58,7 +79,7 @@ substitutions:
   _PIPELINE_NAME: urge-classifier-train-pipeline
   _PIPELINES_STORE: gs://data-for-tfdf/pipelines-store/urge-classifier-train-pipeline
   # For testing only we set ci-cd image = vertex image
-  _TFX_IMAGE_URI: 'us-central1-docker.pkg.dev/tfdf-mlops/docker-repo/vertex:latest'
+  # _TFX_IMAGE_URI: 'us-central1-docker.pkg.dev/tfdf-mlops/docker-repo/vertex:latest'
   
 availableSecrets:
   secretManager:

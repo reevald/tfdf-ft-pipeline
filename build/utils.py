@@ -70,7 +70,8 @@ def run_pipeline(
         display_name=pipeline_name, template_path=gcs_compiled_pipeline_file_location
     )
 
-    job.submit(service_account=service_account, network=None)
+    job.submit()
+    # job.submit(service_account=service_account, network=None)
 
     job.wait()
     print(f"Job finished with state: {job.state}")

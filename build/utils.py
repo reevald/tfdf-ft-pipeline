@@ -27,6 +27,8 @@ def get_args() -> Namespace:
 
     parser.add_argument("--pipelines-store", type=str)
 
+    parser.add_argument("--service-account", type=str)
+
     return parser.parse_args()
 
 
@@ -90,12 +92,15 @@ def main() -> None:
             raise ValueError("pipeline-name should be supplied.")
         if not args.pipelines_store:
             raise ValueError("pipelines-store should be supplied.")
+        if not args.service_account:
+            raise ValueError("service-account should be supplied")
 
         result = run_pipeline(  # type: ignore[func-returns-value]
             pipeline_name=args.pipeline_name,
             pipelines_store=args.pipelines_store,
             gcp_project_id=args.google_cloud_project,
             gcp_region=args.google_cloud_region,
+            service_account=args.service_account
         )
     else:
         raise ValueError(f"Invalid mode {args.mode}")

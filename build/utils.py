@@ -39,7 +39,11 @@ def compile_pipeline(pipeline_name: str) -> Optional[Any]:
 
 
 def run_pipeline(
-    pipeline_name: str, pipelines_store: str, gcp_project_id: str, gcp_region: str
+    pipeline_name: str,
+    pipelines_store: str,
+    gcp_project_id: str,
+    gcp_region: str,
+    service_account: str,
 ) -> None:
     storage_client = storage.Client()
 
@@ -61,11 +65,10 @@ def run_pipeline(
     vertex_ai.init(project=gcp_project_id, location=gcp_region)
 
     job = vertex_ai.PipelineJob(
-        display_name=pipeline_name,
-        template_path=gcs_compiled_pipeline_file_location
+        display_name=pipeline_name, template_path=gcs_compiled_pipeline_file_location
     )
 
-    job.submit()
+    job.submit(service_account=service_account, network=None)
 
     job.wait()
     print(f"Job finished with state: {job.state}")
@@ -87,12 +90,12 @@ def main() -> None:
             raise ValueError("pipeline-name should be supplied.")
         if not args.pipelines_store:
             raise ValueError("pipelines-store should be supplied.")
-        
-        result = run_pipeline( # type: ignore[func-returns-value]
+
+        result = run_pipeline(  # type: ignore[func-returns-value]
             pipeline_name=args.pipeline_name,
             pipelines_store=args.pipelines_store,
             gcp_project_id=args.google_cloud_project,
-            gcp_region=args.google_cloud_region
+            gcp_region=args.google_cloud_region,
         )
     else:
         raise ValueError(f"Invalid mode {args.mode}")

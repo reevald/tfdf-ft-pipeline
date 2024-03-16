@@ -41,7 +41,8 @@ steps:
           '--pipeline-name', '$_PIPELINE_NAME',
           '--pipelines-store', '$_PIPELINES_STORE',
           '--google-cloud-project', '$_GOOGLE_CLOUD_PROJECT',
-          '--google-cloud-region', '$_GOOGLE_CLOUD_REGION'
+          '--google-cloud-region', '$_GOOGLE_CLOUD_REGION',
+          '--service-account', '$_SERVICE_ACCOUNT'
           ]
   dir: '$_WORKDIR'
   id: 'Run Pipeline'
@@ -53,6 +54,7 @@ substitutions:
   _WORKDIR: tfdf-ft-pipeline
   _GOOGLE_CLOUD_PROJECT: tfdf-mlops
   _GOOGLE_CLOUD_REGION: us-central1
+  _SERVICE_ACCOUNT: tfdf-mlops-run-pipeline-sa@tfdf-mlops.iam.gserviceaccount.com
   _PIPELINE_NAME: urge-classifier-train-pipeline
   _PIPELINES_STORE: gs://data-for-tfdf/pipelines-store/urge-classifier-train-pipeline
   # For testing only we set ci-cd image = vertex image

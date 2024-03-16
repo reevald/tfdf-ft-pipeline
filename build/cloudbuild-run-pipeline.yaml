@@ -49,12 +49,14 @@ steps:
   waitFor: ['Clone Repository']
 
 serviceAccount: 'projects/$_PROJECT/serviceAccounts/$_SERVICE_ACCOUNT'
+logsBucket: '$_GCS_CLOUDBUILD_LOGS_BUCKET'
 substitutions:
   _REPO_URL: git@github.com:reevald/tfdf-ft-pipeline.git
   _BRANCH: main
   _WORKDIR: tfdf-ft-pipeline
   _GOOGLE_CLOUD_PROJECT: tfdf-mlops
   _GOOGLE_CLOUD_REGION: us-central1
+  _GCS_CLOUDBUILD_LOGS_BUCKET: gs://data-for-tfdf/logs
   _SERVICE_ACCOUNT: 677694625515-compute@developer.gserviceaccount.com
   _PIPELINE_NAME: urge-classifier-train-pipeline
   _PIPELINES_STORE: gs://data-for-tfdf/pipelines-store/urge-classifier-train-pipeline

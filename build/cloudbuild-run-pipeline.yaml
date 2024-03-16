@@ -1,0 +1,66 @@
+# References:
+# https://github.com/GoogleCloudPlatform/professional-services/blob/main/examples/vertex_mlops_enterprise/build/model-deployment-tfx.yaml.TEMPLATE
+
+steps:
+
+# Access the id_github file from Secret Manager, and setup SSH
+# See: https://cloud.google.com/build/docs/access-github-from-build#create_a_ssh_key
+- name: 'gcr.io/cloud-builders/git'
+  secretEnv: ['SSH_KEY']
+  entrypoint: 'bash'
+  args:
+  - -c
+  - |
+    echo "$$SSH_KEY" >> /root/.ssh/id_rsa
+    chmod 400 /root/.ssh/id_rsa
+    ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+  id: 'Prepare git keys'
+
+# Clone the repository.
+- name: 'gcr.io/cloud-builders/git'
+  args: ['clone', '--single-branch', '--branch',
+         '$_BRANCH', '$_REPO_URL',
+         '--depth', '1',
+         '--verbose']
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+  id: 'Clone Repository'
+  waitFor: ['Prepare git keys']
+
+# Run the pipeline.
+# Note: prefer to use lightweight image by creating from scratch (non-gpu is lighter)
+# Since the pipeline run on Vertex AI not in this image (only for submit job)
+- name: '$_VERTEX_IMAGE_URI'
+  entrypoint: 'python'
+  args: ['build/utils.py',
+          '--mode', 'run-pipeline',
+          '--pipeline-name', '$_PIPELINE_NAME',
+          '--pipelines-store', '$_PIPELINES_STORE',
+          '--google-cloud-project', '$_GOOGLE_CLOUD_PROJECT',
+          '--google-cloud-region', '$_GOOGLE_CLOUD_REGION'
+          ]
+  dir: '$_WORKDIR'
+  id: 'Run Pipeline'
+  waitFor: ['Clone Repository']
+
+substitutions:
+  _REPO_URL: git@github.com:reevald/tfdf-ft-pipeline.git
+  _BRANCH: main
+  _WORKDIR: tfdf-ft-pipeline
+  _GOOGLE_CLOUD_PROJECT: tfdf-mlops
+  _GOOGLE_CLOUD_REGION: us-central1
+  _PIPELINE_NAME: urge-classifier-train-pipeline
+  _PIPELINES_STORE: gs://data-for-tfdf/pipelines-store/urge-classifier-train-pipeline
+  _MODEL_DISPLAY_NAME: urge-classifier
+  # For testing only we set ci-cd image = vertex image
+  _CI_CD_IMAGE_URI: 'us-central1-docker.pkg.dev/tfdf-mlops/docker-repo/vertex:latest'
+  _TFX_IMAGE_URI: 'us-central1-docker.pkg.dev/tfdf-mlops/docker-repo/vertex:latest'
+  
+availableSecrets:
+  secretManager:
+  - versionName: projects/tfdf-mlops/secrets/SSH_KEY/versions/latest
+    env: 'SSH_KEY'

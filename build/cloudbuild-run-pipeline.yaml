@@ -48,7 +48,7 @@ steps:
   id: 'Run Pipeline'
   waitFor: ['Clone Repository']
 
-serviceAccount: 'projects/$_PROJECT/serviceAccounts/$_SERVICE_ACCOUNT'
+serviceAccount: 'projects/$_GOOGLE_CLOUD_PROJECT/serviceAccounts/$_SERVICE_ACCOUNT'
 logsBucket: '$_GCS_CLOUDBUILD_LOGS_BUCKET'
 substitutions:
   _REPO_URL: git@github.com:reevald/tfdf-ft-pipeline.git

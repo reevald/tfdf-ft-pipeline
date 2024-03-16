@@ -11,7 +11,7 @@ on:
 
 jobs:
   deploy-pipeline:
-    if: "contains(github.event.head_commit.message, 'Deploy Pipeline')"
+    if: "github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'Deploy Pipeline')"
     name: 'Compile Vertex AI pipeline'
     runs-on: 'ubuntu-latest'
     steps:

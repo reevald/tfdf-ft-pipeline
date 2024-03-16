@@ -34,7 +34,7 @@ steps:
 # Run the pipeline.
 # Note: prefer to use lightweight image by creating from scratch (non-gpu is lighter)
 # Since the pipeline run on Vertex AI not in this image (only for submit job)
-- name: '$_VERTEX_IMAGE_URI'
+- name: '$_TFX_IMAGE_URI'
   entrypoint: 'python'
   args: ['build/utils.py',
           '--mode', 'run-pipeline',

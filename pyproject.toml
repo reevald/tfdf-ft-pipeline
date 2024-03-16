@@ -23,14 +23,13 @@ exclude = [
     "__pypackages__",
     "_build",
     "buck-out",
-    "build",
     "dist",
     "node_modules",
     "site-packages",
     "venv"
 ]
 
-extend-include = ["*.ipynb"]
+extend-include = ["*.ipynb", "build/*.py"]
 
 # Same as Black.
 line-length = 88

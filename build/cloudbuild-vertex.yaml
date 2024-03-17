@@ -1,5 +1,5 @@
 steps:
-  - id: "Build image for vertex"
+  - id: "Build Container Vertex"
     name: "gcr.io/cloud-builders/docker"
     args:
       [
@@ -11,10 +11,9 @@ steps:
         ".",
       ]
 
-  - id: "Push image for vertex"
+  - id: "Push Container into Artifact Registry"
     name: "gcr.io/cloud-builders/docker"
     args: ["push", "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${PROJECT_ID}/${_DOCKER_REPO_NAME}/vertex:latest"]
 
-# This image is pushed to Artifact Registry
 images:
 - "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${PROJECT_ID}/${_DOCKER_REPO_NAME}/vertex"

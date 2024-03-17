@@ -67,7 +67,7 @@ logsBucket: '$_GCS_CLOUDBUILD_LOGS_BUCKET'
 substitutions:
   _REPO_URL: git@github.com:reevald/tfdf-ft-pipeline.git
   _BRANCH: main
-  _WORKDIR: tfdf-ft-pipeline
+  # _WORKDIR: tfdf-ft-pipeline
   _GOOGLE_CLOUD_PROJECT: tfdf-mlops
   _GOOGLE_CLOUD_REGION: us-central1
   _DOCKER_REPO_NAME: docker-repo

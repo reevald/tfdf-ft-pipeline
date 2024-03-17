@@ -5,7 +5,7 @@ steps:
       [
         "build",
         "-t",
-        "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${PROJECT_ID}/${_DOCKER_REPO_NAME}/vertex:latest",
+        "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${_GOOGLE_CLOUD_PROJECT}/${_DOCKER_REPO_NAME}/vertex:latest",
         "-f",
         "./Dockerfile.vertex",
         ".",
@@ -13,7 +13,7 @@ steps:
 
   - id: "Push Container into Artifact Registry"
     name: "gcr.io/cloud-builders/docker"
-    args: ["push", "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${PROJECT_ID}/${_DOCKER_REPO_NAME}/vertex:latest"]
+    args: ["push", "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${_GOOGLE_CLOUD_PROJECT}/${_DOCKER_REPO_NAME}/vertex:latest"]
 
 images:
-- "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${PROJECT_ID}/${_DOCKER_REPO_NAME}/vertex"
+- "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${_GOOGLE_CLOUD_PROJECT}/${_DOCKER_REPO_NAME}/vertex"

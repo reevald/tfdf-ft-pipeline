@@ -9,9 +9,9 @@ on:
   workflow_dispatch:
 
 env:
-  GOOGLE_CLOUD_REGION: us-central1
-  GOOGLE_CLOUD_PROJECT: tfdf-mlops
-  DOCKER_REPO_NAME: docker-repo
+  GOOGLE_CLOUD_REGION: "us-central1"
+  GOOGLE_CLOUD_PROJECT: "tfdf-mlops"
+  DOCKER_REPO_NAME: "docker-repo"
 
 jobs:
   build-push-container-ci-cd:

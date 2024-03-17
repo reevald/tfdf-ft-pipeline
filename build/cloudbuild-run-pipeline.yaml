@@ -1,5 +1,5 @@
 # References:
-# https://github.com/GoogleCloudPlatform/professional-services/blob/main/examples/vertex_mlops_enterprise/build/model-deployment-tfx.yaml.TEMPLATE
+# https://github.com/GoogleCloudPlatform/professional-services/blob/main/examples/vertex_mlops_enterprise/build/pipeline-run.yaml.TEMPLATE
 
 steps:
 
@@ -60,7 +60,6 @@ substitutions:
   _SERVICE_ACCOUNT: 677694625515-compute@developer.gserviceaccount.com
   _PIPELINE_NAME: urge-classifier-train-pipeline
   _PIPELINES_STORE: gs://data-for-tfdf/pipelines-store/urge-classifier-train-pipeline
-  # For testing only we set ci-cd image = vertex image
   _TFX_IMAGE_URI: 'us-central1-docker.pkg.dev/tfdf-mlops/docker-repo/vertex:latest'
   
 availableSecrets:

@@ -28,4 +28,4 @@ jobs:
         gcloud builds submit --config build/cloudbuild-deploy-model.yaml
       
     - name: "Deploy Image TFServing Model"
-      run: "gcloud run deploy tfdf-inference --args='--monitoring_config_file=/models/prometheus.config' --platform managed --region us-central1 --image us-central1-docker.pkg.dev/tfdf-mlops/docker-repo/tfserving --port 8501 --allow-unauthenticated"
+      run: "gcloud run deploy tfdf-inference --args='--monitoring_config_file=/models/prometheus.config' --platform managed --region us-central1 --image us-central1-docker.pkg.dev/tfdf-mlops/docker-repo/tfserving --allow-unauthenticated"

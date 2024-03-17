@@ -38,7 +38,6 @@ steps:
           '--gcs-serving-model-dir', '$_GCS_SERVING_MODEL_DIR',
           '--local-serving-model-dir', '$_LOCAL_SERVING_MODEL_DIR'
           ]
-  dir: '$_WORKDIR'
   id:  'Get Latest Model Version'
   waitFor: ['Clone Repository']
 

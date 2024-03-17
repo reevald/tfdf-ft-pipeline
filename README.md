@@ -8,13 +8,20 @@
 
 </div>
 <hr/>
+
 This project demonstrates how to build a machine learning pipeline for train and tuning TFDF on [ImproveYou](https://github.com/reevald/improveyou) dataset with the technologies of TensorFlow Extended (TFX), TensorFlow Decision Forest (TFDF), KubeFlow and Vertex AI (GCP).
 
-<p align="center">
-  <img src="assets/success-training.png" alt="training-successful" />
-</p>
+## Workflow CI-CD & Compile Pipeline
+[TODO: add illustration & documentation]
+
+## Workflow Continuous Training
+[TODO: add illustration & documentation]
+
+## Workflow Continuous Model Deployment
+[TODO: add illustration & documentation]
 
 ## Instruction to Run Pipeline
+[TODO: add illustration & documentation]
 
 ### Requirements
 - Local
@@ -52,6 +59,10 @@ upload `sample_local_data` manually.
 3. To run pipeline with Vertex AI we can:
     - Manually by submit job with `src/interactive_run_vertex_ai.ipynb`
     - Automatically (Continuous Training) with triggering GitHub Actions (Compile and Run pipeline) the result can be checked in Google Cloud Storage.
+  
+    <p align="center">
+      <img src="assets/success-training.png" alt="training-successful" />
+    </p>
 
 ## Model Deployment
 

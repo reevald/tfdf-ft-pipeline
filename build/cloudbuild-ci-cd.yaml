@@ -1,0 +1,19 @@
+steps:
+  - id: "Build Container CI-CD"
+    name: "gcr.io/cloud-builders/docker"
+    args:
+      [
+        "build",
+        "-t",
+        "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${_GOOGLE_CLOUD_PROJECT}/${_DOCKER_REPO_NAME}/cicd:latest",
+        "-f",
+        "./Dockerfile.ci-cd",
+        ".",
+      ]
+
+  - id: "Push Container into Artifact Registry"
+    name: "gcr.io/cloud-builders/docker"
+    args: ["push", "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${_GOOGLE_CLOUD_PROJECT}/${_DOCKER_REPO_NAME}/cicd:latest"]
+
+images:
+- "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${_GOOGLE_CLOUD_PROJECT}/${_DOCKER_REPO_NAME}/cicd"

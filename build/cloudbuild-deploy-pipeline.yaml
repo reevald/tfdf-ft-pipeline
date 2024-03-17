@@ -94,8 +94,7 @@ substitutions:
   _PIPELINE_NAME: urge-classifier-train-pipeline
   _PIPELINES_STORE: gs://data-for-tfdf/pipelines-store/urge-classifier-train-pipeline
   _MODEL_DISPLAY_NAME: urge-classifier
-  # For testing only we set ci-cd image = vertex image
-  _CI_CD_IMAGE_URI: 'us-central1-docker.pkg.dev/tfdf-mlops/docker-repo/vertex:latest'
+  _CI_CD_IMAGE_URI: 'us-central1-docker.pkg.dev/tfdf-mlops/docker-repo/cicd:latest'
   _TFX_IMAGE_URI: 'us-central1-docker.pkg.dev/tfdf-mlops/docker-repo/vertex:latest'
   
 availableSecrets:

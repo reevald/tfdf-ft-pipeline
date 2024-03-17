@@ -8,11 +8,6 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-env:
-  GOOGLE_CLOUD_REGION: "us-central1"
-  GOOGLE_CLOUD_PROJECT: "tfdf-mlops"
-  DOCKER_REPO_NAME: "docker-repo"
-
 jobs:
   build-push-container-ci-cd:
     if: "github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'Build CI-CD Container')"
@@ -30,7 +25,7 @@ jobs:
     - name: 'Build and Push Container CI-CD'
       run: |
         cp build/Dockerfile.ci-cd Dockerfile.ci-cd
-        gcloud builds submit --config build/cloudbuild-ci-cd.yaml --substitutions _GOOGLE_CLOUD_REGION="$${{ env.GOOGLE_CLOUD_REGION }}",_GOOGLE_CLOUD_PROJECT="$${{ env.GOOGLE_CLOUD_PROJECT }}",_DOCKER_REPO_NAME="$${{ env.DOCKER_REPO_NAME }}"
+        gcloud builds submit --config build/cloudbuild-ci-cd.yaml --substitutions _GOOGLE_CLOUD_REGION=us-central1,_GOOGLE_CLOUD_PROJECT=tfdf-mlops,_DOCKER_REPO_NAME=docker-repo
       
   build-push-container-tfx-vertex:
     if: "github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'Build TFX Vertex Container')"
@@ -48,4 +43,4 @@ jobs:
     - name: 'Build and Push Container TFX Vertex'
       run: |
         cp build/Dockerfile.vertex Dockerfile.vertex
-        gcloud builds submit --config build/cloudbuild-vertex.yaml --substitutions _GOOGLE_CLOUD_REGION="$${{ env.GOOGLE_CLOUD_REGION }}",_GOOGLE_CLOUD_PROJECT="$${{ env.GOOGLE_CLOUD_PROJECT }}",_DOCKER_REPO_NAME="$${{ env.DOCKER_REPO_NAME }}"
+        gcloud builds submit --config build/cloudbuild-vertex.yaml --substitutions _GOOGLE_CLOUD_REGION=us-central1,_GOOGLE_CLOUD_PROJECT=tfdf-mlops,_DOCKER_REPO_NAME=docker-repo

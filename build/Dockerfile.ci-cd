@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y gcc g++ git-all && rm -rf /var/lib/apt/
 
 RUN pip install -r /requirements.txt --no-cache-dir
 RUN pip install google-cloud-aiplatform "shapely<2"
+RUN pip install pytest
 
 FROM base as test
 

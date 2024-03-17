@@ -1,9 +1,11 @@
 <h1 align="center">TFDF Pipeline</h1>
 <div align="center">
+
 ![Build and Push Containers](https://github.com/reevald/tfdf-ft-pipeline/actions/workflows/build-push-containers-dev.yaml/badge.svg)
 ![Compile Pipeline](https://github.com/reevald/tfdf-ft-pipeline/actions/workflows/deploy-pipeline-dev.yaml/badge.svg)
 ![Continuous Training](https://github.com/reevald/tfdf-ft-pipeline/actions/workflows/run-pipeline-dev.yaml/badge.svg)
 ![Continuous Model Deployment](https://github.com/reevald/tfdf-ft-pipeline/actions/workflows/deploy-model-dev.yaml/badge.svg)
+
 </div>
 <hr/>
 This project demonstrates how to build a machine learning pipeline for train and tuning TFDF on [ImproveYou](https://github.com/reevald/improveyou) dataset with the technologies of TensorFlow Extended (TFX), TensorFlow Decision Forest (TFDF), KubeFlow and Vertex AI (GCP).

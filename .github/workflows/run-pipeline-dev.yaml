@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-pipeline:
+  run-pipeline:
     if: "github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'Run Pipeline')"
     name: 'Run Vertex AI pipeline'
     runs-on: 'ubuntu-latest'

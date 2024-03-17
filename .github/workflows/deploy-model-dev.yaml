@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-pipeline:
+  deploy-model:
     if: "github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'Deploy Model TFDF')"
     name: 'Build and Deploy TFDF Model with TFServing'
     runs-on: 'ubuntu-latest'

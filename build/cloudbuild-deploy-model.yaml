@@ -53,6 +53,7 @@ steps:
       "./Dockerfile.tfserving",
       ".",
     ]
+  dir: '$_WORKDIR'
   waitFor: ['Get Latest Model Version']
 
 - id: "push image"

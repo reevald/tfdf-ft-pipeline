@@ -1,0 +1,31 @@
+name: Deploy Model with TFServing
+# Controls when the workflow will run
+on:
+  push:
+    branches:
+      - main
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  deploy-pipeline:
+    if: "github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'Deploy Model TFDF')"
+    name: 'Build and Deploy TFDF Model with TFServing'
+    runs-on: 'ubuntu-latest'
+    steps:
+    - uses: 'actions/checkout@v3'
+         
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: "${{ secrets.GCP_CREDENTIALS_JSON }}"
+
+    - name: 'Build and Push Image TFServing Model'
+      run: |
+        cp build/Dockerfile.tfserving Dockerfile.tfserving
+        gcloud builds submit --config build/cloudbuild-deploy-model.yaml
+      
+    - name: "Deploy Image TFServing Model"
+      run: "gcloud run deploy tfdf-inference --args='--monitoring_config_file=/models/prometheus.config' --platform managed --region us-central1 --image us-central1-docker.pkg.dev/tfdf-mlops/docker-repo/tfserving --port 8501 --allow-unauthenticated"

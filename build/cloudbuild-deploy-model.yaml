@@ -1,19 +1,85 @@
+# References:
+# https://github.com/GoogleCloudPlatform/professional-services/blob/main/examples/vertex_mlops_enterprise/build/model-deployment-tfx.yaml.TEMPLATE
 steps:
-  - id: "build image"
-    name: "gcr.io/cloud-builders/docker"
-    args:
-      [
-        "build",
-        "-t",
-        "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${PROJECT_ID}/${_DOCKER_REPO_NAME}/tfserving:latest",
-        "-f",
-        "./Dockerfile.tfserving",
-        ".",
-      ]
 
-  - id: "push image"
-    name: "gcr.io/cloud-builders/docker"
-    args: ["push", "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${PROJECT_ID}/${_DOCKER_REPO_NAME}/tfserving:latest"]
+# Access the id_github file from Secret Manager, and setup SSH
+# See: https://cloud.google.com/build/docs/access-github-from-build#create_a_ssh_key
+- name: 'gcr.io/cloud-builders/git'
+  secretEnv: ['SSH_KEY']
+  entrypoint: 'bash'
+  args:
+  - -c
+  - |
+    echo "$$SSH_KEY" >> /root/.ssh/id_rsa
+    chmod 400 /root/.ssh/id_rsa
+    ssh-keyscan -t rsa github.com > /root/.ssh/known_hosts
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+  id: 'Prepare git keys'
+
+# Clone the repository.
+- name: 'gcr.io/cloud-builders/git'
+  args: ['clone', '--single-branch', '--branch',
+         '$_BRANCH', '$_REPO_URL',
+         '--depth', '1',
+         '--verbose']
+  volumes:
+  - name: 'ssh'
+    path: /root/.ssh
+  id: 'Clone Repository'
+  waitFor: ['Prepare git keys']
+
+# Get the latest version model
+- name: '$_CI_CD_IMAGE_URI'
+  entrypoint: 'python'
+  args: ['build/utils.py',
+          '--mode', 'get-latest-model-version',
+          '--gcs-serving-model-dir', '$_GCS_SERVING_MODEL_DIR',
+          '--local-serving-model-dir', '$_LOCAL_SERVING_MODEL_DIR'
+          ]
+  dir: '$_WORKDIR'
+  id:  'Get Latest Model Version'
+  waitFor: ['Clone Repository']
+
+- id: "Build TFServing Image"
+  name: "gcr.io/cloud-builders/docker"
+  args:
+    [
+      "build",
+      "-t",
+      "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${_GOOGLE_CLOUD_PROJECT}/${_DOCKER_REPO_NAME}/tfserving:latest",
+      "-f",
+      "./Dockerfile.tfserving",
+      ".",
+    ]
+  waitFor: ['Get Latest Model Version']
+
+- id: "push image"
+  name: "gcr.io/cloud-builders/docker"
+  args: ["push", "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${_GOOGLE_CLOUD_PROJECT}/${_DOCKER_REPO_NAME}/tfserving:latest"]
+  waitFor: ['Build TFServing Image']
 
 images:
-  - "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${PROJECT_ID}/${_DOCKER_REPO_NAME}/tfserving"
+  - "${_GOOGLE_CLOUD_REGION}-docker.pkg.dev/${_GOOGLE_CLOUD_PROJECT}/${_DOCKER_REPO_NAME}/tfserving"
+
+serviceAccount: 'projects/$_GOOGLE_CLOUD_PROJECT/serviceAccounts/$_SERVICE_ACCOUNT'
+logsBucket: '$_GCS_CLOUDBUILD_LOGS_BUCKET'
+substitutions:
+  _REPO_URL: git@github.com:reevald/tfdf-ft-pipeline.git
+  _BRANCH: main
+  _WORKDIR: tfdf-ft-pipeline
+  _GOOGLE_CLOUD_PROJECT: tfdf-mlops
+  _GOOGLE_CLOUD_REGION: us-central1
+  _DOCKER_REPO_NAME: docker-repo
+  _GCS_CLOUDBUILD_LOGS_BUCKET: gs://data-for-tfdf/logs
+  _GCS_SERVING_MODEL_DIR: gs://data-for-tfdf-/serving-model/urge-classifier-train-pipeline
+  _LOCAL_SERVING_MODEL_DIR: serving_saved_model/urge-classifier
+  _SERVICE_ACCOUNT: 677694625515-compute@developer.gserviceaccount.com
+  # For testing only we set ci-cd image = vertex image
+  _CI_CD_IMAGE_URI: 'us-central1-docker.pkg.dev/tfdf-mlops/docker-repo/vertex:latest'
+  
+availableSecrets:
+  secretManager:
+  - versionName: projects/tfdf-mlops/secrets/SSH_KEY/versions/latest
+    env: 'SSH_KEY'

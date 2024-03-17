@@ -1,4 +1,4 @@
-name: Run Vertex AI TFX Pipeline
+name: Continuous Training
 # Controls when the workflow will run
 on:
   push:

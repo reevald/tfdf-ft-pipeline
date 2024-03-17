@@ -1,4 +1,4 @@
-name: Deploy Vertex AI TFX Pipeline
+name: Compile Pipeline
 # Controls when the workflow will run
 on:
   push:

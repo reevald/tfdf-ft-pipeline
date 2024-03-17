@@ -1,4 +1,4 @@
-name: Deploy Model with TFServing
+name: Continuous Model Deployment
 # Controls when the workflow will run
 on:
   push:

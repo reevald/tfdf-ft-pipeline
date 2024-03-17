@@ -135,7 +135,9 @@ def get_latest_model_version(
         directory = local_download_dir + "/".join(file_split[0:-1])
         Path(directory).mkdir(parents=True, exist_ok=True)
         blob.download_to_filename(local_download_dir + "/".join(file_split))
-        logging.info(f"{blob.name} was successful downloaded.")
+        print(f"{blob.name} was successful downloaded.")
+    
+    print("Latest model was successful downloaded.")
 
 
 def main() -> None:

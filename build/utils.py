@@ -89,6 +89,8 @@ def get_latest_model_version(
     path_parts = gcs_serving_model_dir.replace("gs://", "").split("/")
     bucket_name = path_parts[0]
     blob_name = "/".join(path_parts[1:])
+    # Since the blob_name is directory we need to add "/" at the end
+    blob_name = blob_name if blob_name.endswith("/") else blob_name + "/"
 
     bucket = storage_client.bucket(bucket_name)
     blob_model_dir = storage.Blob(bucket=bucket, name=blob_name)

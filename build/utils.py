@@ -99,7 +99,7 @@ def get_latest_model_version(
         raise ValueError(f"{blob_name} does not exist.")
 
     len_list_blob_name = len(path_parts[1:])
-    list_blobs = list(bucket.list_blobs(prefix=blob_name + "/"))
+    list_blobs = list(bucket.list_blobs(prefix=blob_name))
 
     latest_num_version = 0
     last_check_str_version = ""

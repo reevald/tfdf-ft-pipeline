@@ -73,7 +73,7 @@ substitutions:
   _GOOGLE_CLOUD_REGION: us-central1
   _DOCKER_REPO_NAME: docker-repo
   _GCS_CLOUDBUILD_LOGS_BUCKET: gs://data-for-tfdf/logs
-  _GCS_SERVING_MODEL_DIR: gs://data-for-tfdf-/serving-model/urge-classifier-train-pipeline
+  _GCS_SERVING_MODEL_DIR: gs://data-for-tfdf/serving-model/urge-classifier-train-pipeline
   _LOCAL_SERVING_MODEL_DIR: serving_saved_model/urge-classifier
   _SERVICE_ACCOUNT: 677694625515-compute@developer.gserviceaccount.com
   # For testing only we set ci-cd image = vertex image

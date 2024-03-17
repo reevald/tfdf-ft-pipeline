@@ -118,7 +118,7 @@ def get_latest_model_version(
         raise ValueError("No model version in the given directory.")
 
     # Download latest num version of model into serving_saved_model
-    target_download_dir = f"{blob_name}/{latest_num_version}/"
+    target_download_dir = f"{blob_name}{latest_num_version}/"
     local_download_dir = (
         local_serving_model_dir
         if local_serving_model_dir.endswith("/")

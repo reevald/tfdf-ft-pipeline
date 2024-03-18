@@ -11,17 +11,39 @@
 
 This project demonstrates how to build a machine learning pipeline for train and tuning TFDF on [ImproveYou](https://github.com/reevald/improveyou) dataset with the technologies of TensorFlow Extended (TFX), TensorFlow Decision Forest (TFDF), KubeFlow and Vertex AI (GCP).
 
-## Workflow CI-CD & Compile Pipeline
-[TODO: add illustration & documentation]
+## Workflow CI-CD & Compile 
+
+<p align="center">
+  <img src="assets/ci-cd-compile-pipeline.jpg" alt="Workflow CI-CD & Compile Pipeline" />
+</p>
+
+Trigger cloud build `deploy-pipeline-dev.yaml` by making changes in code or empty commit and include `Deploy Pipeline` in the commit message (or trigger manually in Action tab). For the first step is clone this repository and then try testing end-to-end pipeline (coming soon). If the test passed then compile KubeFlow pipeline and the result is a json file that need to be save into pipelines store in Google Cloud Storage. This compiled pipeline will be consumed in continuous training below.
 
 ## Workflow Continuous Training
-[TODO: add illustration & documentation]
+
+<p align="center">
+  <img src="assets/continuous-training.jpg" alt="Workflow Continuous Training" />
+</p>
+
+Trigger cloud build `run-pipeline-dev.yaml` by making changes in code or empty commit and include `Deploy Pipeline` in the commit message (or trigger manually in Action tab). Same like previous workflow, for the first step is clone repository and try get previous compiled pipeline. The compiled pipeline will be used as input when creating Vertex AI pipeline job. The job can be executed by submit it into Vertex AI service. Once submitted we can monitor the progress of running pipeline with Directed Acyclic Graph (DAG) visualization like animation below.
+
+<p align="center">
+  <img src="assets/demo-run-pipeline.gif" alt="Demo Run Pipeline" />
+</p>
+
+Once the process done, if the model met with value of threshold metrics, it will produced a new model version that pushed into Google Cloud Storage.
 
 ## Workflow Continuous Model Deployment
-[TODO: add illustration & documentation]
+
+<p align="center">
+  <img src="assets/continuous-model-deployment.jpg" alt="Workflow Model Deployment" />
+</p>
+
+For this workflow we can trigger it by create empty commit with `Deploy Model TFDF` included in the commit message. After clone this repository and then try to get latest model version in Google Cloud Storage. The model should be tested first before deploy (coming soon). If the test passed, model ready to deploy with TFServing and Google Cloud Run. Once deployed we will get endpoint of model inference. To test prediction we can use `src/tests/test_prediction.ipynb`.
+
+**Note:** to integrate all of the workflow, human in loop is still needed, to check the input and output of the current and previous workflow.
 
 ## Instruction to Run Pipeline
-[TODO: add illustration & documentation]
 
 ### Requirements
 - Local
@@ -49,16 +71,13 @@ This project demonstrates how to build a machine learning pipeline for train and
     Once done, you will get new model inside serving_saved_model.
 
 ### Cloud Environment (with Continuous Training)
-<p align="center">
-  <img src="assets/demo-run-pipeline.gif" alt="Demo Run Pipeline" />
-</p>
 
 1. Setup Bucket in Google Cloud Storage and upload data into GCS, this process should be handled by ETL process, but for now, we can use src/data_to_gcs.ipynb to
 upload `sample_local_data` manually.
 2. Enable related-Vertex AI, Artifact Registry API and Cloud Build API to use these services.
 3. To run pipeline with Vertex AI we can:
     - Manually by submit job with `src/interactive_run_vertex_ai.ipynb`
-    - Automatically (Continuous Training) with triggering GitHub Actions (Compile and Run pipeline) the result can be checked in Google Cloud Storage.
+    - Automatically (Continuous Training) with triggering GitHub Actions (Compile and Run pipeline) the result can be checked in Google Cloud Storage. 
   
     <p align="center">
       <img src="assets/success-training.png" alt="training-successful" />

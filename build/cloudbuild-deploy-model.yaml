@@ -41,6 +41,16 @@ steps:
   id:  'Get Latest Model Version'
   waitFor: ['Clone Repository']
 
+# Test the latest model version
+- name: '$_CI_CD_IMAGE_URI'
+  entrypoint: 'pytest'
+  args: ['src/tests/test_model_deployment.py::test_latest_version_model_artifact', '-s']
+  env:
+  - 'LOCAL_SERVING_MODEL_DIR=$_LOCAL_SERVING_MODEL_DIR'
+  id: 'Test Latest Model Version'
+  waitFor: ['Get Latest Model Version']
+
+
 - id: "Build TFServing Image"
   name: "gcr.io/cloud-builders/docker"
   args:
@@ -52,7 +62,7 @@ steps:
       "./Dockerfile.tfserving",
       ".",
     ]
-  waitFor: ['Get Latest Model Version']
+  waitFor: ['Test Latest Model Version']
 
 - id: "push image"
   name: "gcr.io/cloud-builders/docker"

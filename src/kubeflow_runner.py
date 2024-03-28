@@ -65,6 +65,13 @@ def run_and_compile_pipeline(pipeline_definition_file: str) -> Optional[Any]:
         }]
     }
 
+    config_training_vertex = {
+        "IS_ENABLE_UCAIP": is_enable_ucaip,
+        "UCAIP_REGION": config.UCAIP_REGION,
+        "VERTEX_ARGS": vertex_args,
+        "IS_USE_GPU": is_enable_gpu
+    }
+
     managed_pipeline = kubeflow_pipeline.create_pipeline(
         pipeline_name=config.PIPELINE_NAME,
         pipeline_root=gcs_pipeline_root,
@@ -78,10 +85,7 @@ def run_and_compile_pipeline(pipeline_definition_file: str) -> Optional[Any]:
         enable_tuning=is_enable_tuning,
         enable_cache=is_enable_cache,
         enable_training_vertex=is_enable_training_vertex,
-        enable_ucaip=is_enable_ucaip,
-        ucaip_region=config.UCAIP_REGION,
-        vertex_args=vertex_args,
-        use_gpu=is_enable_gpu,
+        config_training_vertex=config_training_vertex,
         metadata_connection_config=gcs_metadata_pipeline_config,
         serving_model_dir=gcs_serving_model_dir,
         beam_pipeline_args=beam_pipeline_direct_runner_args

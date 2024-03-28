@@ -24,10 +24,7 @@ def create_pipeline(
     enable_tuning: bool,
     enable_cache: bool,
     enable_training_vertex: bool,
-    enable_ucaip: bool,
-    ucaip_region: str,
-    vertex_args: dict,
-    use_gpu: bool,
+    config_training_vertex: Optional[dict],
     serving_model_dir: str,
     metadata_connection_config: Optional[Any],
     beam_pipeline_args: Optional[List[Union[str, Any]]],
@@ -146,6 +143,18 @@ def create_pipeline(
     ).with_id("ModelTrainer")
 
     if enable_training_vertex:
+        if config_training_vertex is None:
+            raise ValueError("Config should be provided if enable training vertex")
+        
+        try:
+            enable_ucaip = config_training_vertex["IS_ENABLE_UCAIP"]
+            ucaip_region = config_training_vertex["UCAIP_REGION"]
+            vertex_args = config_training_vertex["VERTEX_ARGS"]
+            use_gpu = config_training_vertex["IS_USE_GPU"]
+
+        except KeyError as err:
+            raise KeyError(f"Missing key in config training vertex. {err}") from err
+
         trainer = VertexTrainer(
             examples=transform.outputs["transformed_examples"],
             schema=transform.outputs["post_transform_schema"],

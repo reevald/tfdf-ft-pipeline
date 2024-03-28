@@ -31,33 +31,30 @@ steps:
   id: 'Clone Repository'
   waitFor: ['Prepare git keys']
 
-# Run model unit tests.
-# - name: '$_CI_CD_IMAGE_URI'
-#   entrypoint: 'pytest'
-#   args: ['src/tests/model_tests.py', '-s']
-#   dir: '$_WORKDIR'
-#   id: 'Unit Test Model'
-#   waitFor: ['Clone Repository']
-#   timeout: 1800s
-
 # Test e2e pipeline using local runner.
-# - name: '$_CI_CD_IMAGE_URI'
-#   entrypoint: 'pytest'
-#   args: ['src/tests/pipeline_deployment_tests.py::test_e2e_pipeline', '-s']
-#   dir: '$_WORKDIR'
-#   env: 
-#   - 'PROJECT=$_PROJECT'  
-#   - 'REGION=$_REGION'
-#   - 'MODEL_DISPLAY_NAME=$_MODEL_DISPLAY_NAME'
-#   - 'VERTEX_DATASET_NAME=$_VERTEX_DATASET_NAME'  
-#   - 'GCS_LOCATION=$_TEST_GCS_LOCATION'
-#   - 'TRAIN_LIMIT=$_CI_TRAIN_LIMIT'
-#   - 'TEST_LIMIT=$_CI_TEST_LIMIT'  
-#   - 'UPLOAD_MODEL=$_CI_UPLOAD_MODEL'
-#   - 'ACCURACY_THRESHOLD=$_CI_ACCURACY_THRESHOLD'
-#   id: 'Local Test E2E Pipeline'
-#   waitFor: ['Clone Repository']
-#   timeout: 1800s
+- name: '$_CI_CD_IMAGE_URI'
+  entrypoint: 'pytest'
+  args: ['src/tests/test_pipeline_deployment.py::test_e2e_pipeline', '-s']
+  dir: '$_WORKDIR'
+  env: 
+  - 'MODEL_DISPLAY_NAME=$_MODEL_DISPLAY_NAME'
+  - 'PIPELINE_NAME=$_PIPELINE_NAME'
+  - 'GCS_PIPELINE_ROOT=$_TEST_GCS_PIPELINE_ROOT'
+  - 'GCS_DATA_ROOT=$_TEST_GCS_DATA_ROOT'
+  - 'GCS_SERVING_MODEL_DIR=$_TEST_GCS_SERVING_MODEL_DIR'
+  - 'ENABLE_ANOMALY_DETECTION=$_TEST_ENABLE_ANOMALY_DETECTION'
+  - 'ENABLE_TUNING=$_TEST_ENABLE_TUNING'
+  - 'ENABLE_CACHE=$_TEST_ENABLE_CACHE'
+  - 'ENABLE_TRAINING_VERTEX=$_TEST_ENABLE_TRAINING_VERTEX'
+  - 'ENABLE_MULTI_PROCESSING=$_TEST_ENABLE_MULTI_PROCESSING'
+  - 'USER_PROVIDED_BEST_HYPERPARAMETER_PATH=$_USER_PROVIDED_BEST_HYPERPARAMETER'
+  - 'USER_PROVIDED_SCHEMA_PATH=$_USER_PROVIDED_SCHEMA_PATH'
+  - 'MODULE_TRANSFORM_PATH=$_MODULE_TRANSFORM_PATH'
+  - 'MODULE_TUNER_PATH=$_MODULE_TUNER_PATH'
+  - 'MODULE_TRAINER_PATH=$_MODULE_TRAINER_PATH'
+  id: 'Local Test E2E Pipeline'
+  waitFor: ['Clone Repository']
+  timeout: 3000s
 
 # Compile the pipeline.
 - name: '$_CI_CD_IMAGE_URI'
@@ -72,11 +69,23 @@ steps:
   - 'GOOGLE_CLOUD_REGION=$_GOOGLE_CLOUD_REGION'
   - 'MODEL_DISPLAY_NAME=$_MODEL_DISPLAY_NAME'
   - 'TFX_IMAGE_URI=$_TFX_IMAGE_URI'
+  - 'PIPELINE_NAME=$_PIPELINE_NAME'
+  - 'GCS_PIPELINE_ROOT=$_GCS_PIPELINE_ROOT'
+  - 'GCS_DATA_ROOT=$_GCS_DATA_ROOT'
+  - 'GCS_SERVING_MODEL_DIR=$_GCS_SERVING_MODEL_DIR'
+  - 'ENABLE_ANOMALY_DETECTION=$_ENABLE_ANOMALY_DETECTION'
+  - 'ENABLE_TUNING=$_ENABLE_TUNING'
+  - 'ENABLE_CACHE=$_ENABLE_CACHE'
+  - 'ENABLE_TRAINING_VERTEX=$_ENABLE_TRAINING_VERTEX'
+  - 'ENABLE_MULTI_PROCESSING=$_ENABLE_MULTI_PROCESSING'
+  - 'USER_PROVIDED_BEST_HYPERPARAMETER_PATH=$_USER_PROVIDED_BEST_HYPERPARAMETER_PATH'
+  - 'USER_PROVIDED_SCHEMA_PATH=$_USER_PROVIDED_SCHEMA_PATH'
+  - 'MODULE_TRANSFORM_PATH=$_MODULE_TRANSFORM_PATH'
+  - 'MODULE_TUNER_PATH=$_MODULE_TUNER_PATH'
+  - 'MODULE_TRAINER_PATH=$_MODULE_TRAINER_PATH'
   
   id: 'Compile Pipeline'
-  waitFor: ['Clone Repository']
-
-# waitFor: ['Local Test E2E Pipeline', 'Unit Test Datasource Utils', 'Unit Test Model']
+  waitFor: ['Local Test E2E Pipeline']
 
 # Upload compiled pipeline to GCS.
 - name: 'gcr.io/cloud-builders/gsutil'
@@ -96,6 +105,27 @@ substitutions:
   _MODEL_DISPLAY_NAME: urge-classifier
   _CI_CD_IMAGE_URI: 'us-central1-docker.pkg.dev/tfdf-mlops/docker-repo/cicd:latest'
   _TFX_IMAGE_URI: 'us-central1-docker.pkg.dev/tfdf-mlops/docker-repo/vertex:latest'
+  _GCS_PIPELINE_ROOT: gs://data-for-tfdf/pipeline-root/urge-classifier-train-pipeline
+  _TEST_GCS_PIPELINE_ROOT: gs://data-for-tfdf/tests/pipeline-root/urge-classifier-train-pipeline
+  _GCS_DATA_ROOT: gs://data-for-tfdf/data/urge-classifier-train-pipeline
+  _TEST_GCS_DATA_ROOT: gs://data-for-tfdf/tests/data/urge-classifier-train-pipeline
+  _GCS_SERVING_MODEL_DIR: gs://data-for-tfdf/serving-model/urge-classifier-train-pipeline
+  _TEST_GCS_SERVING_MODEL_DIR: gs://data-for-tfdf/tests/serving-model/urge-classifier-train-pipeline
+  _ENABLE_ANOMALY_DETECTION: 'YES'
+  _TEST_ENABLE_ANOMALY_DETECTION: 'NO'
+  _ENABLE_TUNING: 'NO'
+  _TEST_ENABLE_TUNING: 'NO'
+  _ENABLE_CACHE: 'YES'
+  _TEST_ENABLE_CACHE: 'YES'
+  _ENABLE_TRAINING_VERTEX: 'YES'
+  _TEST_ENABLE_TRAINING_VERTEX: 'NO'
+  _ENABLE_MULTI_PROCESSING: 'NO'
+  _TEST_ENABLE_MULTI_PROCESSING: 'NO'
+  _USER_PROVIDED_BEST_HYPERPARAMETER_PATH: 'src/best_hyperparameters'
+  _USER_PROVIDED_SCHEMA_PATH: 'src/raw_schema/schema.pbtxt'
+  _MODULE_TRANSFORM_PATH: 'src/modules/transform_module.py'
+  _MODULE_TUNER_PATH: 'src/modules/tuner_module.py'
+  _MODULE_TRAINER_PATH: 'src/modules/trainer_module.py'
   
 availableSecrets:
   secretManager:

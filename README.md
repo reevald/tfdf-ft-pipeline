@@ -17,7 +17,7 @@ This project demonstrates how to build a machine learning pipeline for training 
   <img src="assets/ci-cd-compile-pipeline.jpg" alt="Workflow CI-CD & Compile Pipeline" />
 </p>
 
-Trigger cloud build `deploy-pipeline-dev.yaml` by making changes in the code or performing an empty commit and include `Deploy Pipeline` in the commit message (or trigger manually in the Action tab). The first step is to clone this repository and then attempt testing the end-to-end pipeline (coming soon). If the test passes, then compile the Kubeflow pipeline, and the result is a JSON file that needs to be saved into the pipeline store in Google Cloud Storage. This compiled pipeline will be consumed in continuous training below.
+Trigger cloud build `deploy-pipeline-dev.yaml` by making changes in the code or performing an empty commit and include `Deploy Pipeline` in the commit message (or trigger manually in the Action tab). The first step is to clone this repository and then attempt testing the end-to-end pipeline. If the test passes, then compile the Kubeflow pipeline, and the result is a JSON file that needs to be saved into the pipeline store in Google Cloud Storage. This compiled pipeline will be consumed in continuous training below.
 
 ## Workflow Continuous Training
 
@@ -39,7 +39,7 @@ Once the process is completed, if the model meets the threshold metrics value, i
   <img src="assets/continuous-model-deployment.jpg" alt="Workflow Model Deployment" />
 </p>
 
-For this workflow, we can trigger it by creating an empty commit with `Deploy Model TFDF` included in the commit message (or triggering it manually in the Action tab). After cloning this repository, it will retrieve the latest model version from Google Cloud Storage. The model should be tested before deployment (coming soon). If the test passes, the model is ready to be deployed with TFServing and Google Cloud Run. Once deployed, we will receive the endpoint for model inference. To test predictions, we can use `src/tests/test_prediction.ipynb`.
+For this workflow, we can trigger it by creating an empty commit with `Deploy Model TFDF` included in the commit message (or triggering it manually in the Action tab). After cloning this repository, it will retrieve the latest model version from Google Cloud Storage. The model should be tested before deployment. If the test passes, the model is ready to be deployed with TFServing and Google Cloud Run. Once deployed, we will receive the endpoint for model inference. To test predictions, we can use `src/tests/test_prediction.ipynb`.
 
 **Note:** To integrate all of the workflows, human in loop is still needed to check the input and output of the current and previous workflows.
 
@@ -166,6 +166,8 @@ To test monitoring process we can use `src/tests/test_prediction.ipynb` at the l
 - https://github.com/GoogleCloudPlatform/professional-services/tree/main/examples/vertex_mlops_enterprise
 
 ## TODO: Improvements
+- [x] Implemented test end-to-end pipeline before compile it.
+- [x] Implemented test latest version model artifact before deploy it.
 - [ ] Separate ExampleGen between train and test to prevent data leak when transforming data, for example when doing normalization data. (see: [Data Ingestion and Split](https://medium.com/google-cloud/machine-learning-pipeline-development-on-google-cloud-5cba36819058#:~:text=Data%20Ingestion%20and%20Split),
 the test only be used in EvaluatorGen) (Coming Soon).
 - [ ] Implement Apache Beam (with Google DataFlow) to run data transformation at scale (Coming Soon)
